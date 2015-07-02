@@ -1,7 +1,10 @@
+require 'colorize'
 require_relative 'board'
 require_relative 'vector'
 
 class Piece
+  attr_reader :color
+
   def initialize(color)
     @color = color
     @king  = false
@@ -16,6 +19,9 @@ class Piece
   end
 
   def to_s
-    king? ? "\u26C3 " : "\u26C2 "
+    sigil = king? ? "\u26C3 " : "\u26C2 "
+    sigil = sigil.bold
+
+    color == :white ? sigil.cyan : sigil.red
   end
 end

@@ -22,16 +22,16 @@ class Board
 
   def to_s
     color = true
-    self.grid.map do |row|
+    "\t\t".on_black + self.grid.map do |row|
       color = !color
       row.map do |square|
         color = !color
 
         str = square.to_s
 
-        color ? str.on_black : str.on_red
-      end.join("  ")
-    end.join("\n\n")
+        color ? str.on_black : str.on_light_black
+      end.join("".on_black)
+    end.join("\n\t\t".on_black)
   end
 
   protected
