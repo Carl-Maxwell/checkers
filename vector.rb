@@ -1,4 +1,3 @@
-
 require 'matrix'
 
 class Array

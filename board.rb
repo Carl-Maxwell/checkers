@@ -3,17 +3,15 @@ require_relative 'empty_square'
 
 class Board
   def initialize
-    @grid = Array.new(8) { |row| Array.new(8) do |col|
-      (row + col).even? ? EmptySquare::black_sentinel : EmptySquare::red_sentinel
-    end }
+    @grid = Array.new(8) { Array.new(8) { EmptySquare::sentinel } }
   end
 
-  def [](arr_ish_thing)
+  def [](*arr_ish_thing)
     row, col = *arr_ish_thing
     self.grid[row][col]
   end
 
-  def []=(arr_ish_thing, value)
+  def []=(*arr_ish_thing, value)
     row, col = *arr_ish_thing
     self.grid[row][col] = value
   end
@@ -22,13 +20,16 @@ class Board
     self.grid[row_i]
   end
 
-  def render
-    color = false
+  def to_s
+    color = true
     self.grid.map do |row|
       color = !color
       row.map do |square|
         color = !color
-        square.to_s
+
+        str = square.to_s
+
+        color ? str.on_black : str.on_red
       end.join("  ")
     end.join("\n\n")
   end

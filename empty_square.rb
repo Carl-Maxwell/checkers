@@ -1,19 +1,9 @@
-require 'colorize'
-
 class EmptySquare
-  def initialize(color)
-    @color = color
-  end
-
-  def self.red_sentinel
-    @@red ||= EmptySquare.new(:on_red)
-  end
-
-  def self.black_sentinel
-    @@black ||= EmptySquare.new(:on_black)
+  def self.sentinel
+    @@instance ||= EmptySquare.new()
   end
 
   def to_s
-    @color.to_proc.call("  ")
+    "  "
   end
 end
