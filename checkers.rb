@@ -25,7 +25,7 @@ class Checkers
 
     [[:black, black], [:white, white]].each do |(color, squares)|
       squares.each do |(row, col)|
-        self.board[row, col] = Piece.new(color)
+        self.board[row, col] = Piece.new(color, [row, col])
       end
     end
   end

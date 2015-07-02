@@ -6,18 +6,24 @@ class Board
     @grid = Array.new(8) { Array.new(8) { EmptySquare::sentinel } }
   end
 
-  def [](*arr_ish_thing)
-    row, col = *arr_ish_thing
+  def [](*coord)
+    row, col = *coord
     self.grid[row][col]
   end
 
-  def []=(*arr_ish_thing, value)
-    row, col = *arr_ish_thing
+  def []=(*coord, value)
+    row, col = *coord
     self.grid[row][col] = value
   end
 
   def row(row_i)
     self.grid[row_i]
+  end
+
+  def on_board?(*coord)
+    row, col = *coord
+    (0..grid.length).include?(row) &&
+    (0..grid[0].length).include?(col)
   end
 
   def to_s
