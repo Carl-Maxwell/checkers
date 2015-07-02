@@ -3,6 +3,10 @@ class EmptySquare
   @@instances = nil
 
   def self.sentinel
-    @@instance ||= self.class.new
+    @@instance ||= EmptySquare.new
+  end
+
+  def to_s
+    "  "
   end
 end
