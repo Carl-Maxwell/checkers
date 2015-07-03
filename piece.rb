@@ -2,14 +2,17 @@ require 'colorize'
 require_relative 'board'
 require_relative 'vector'
 require_relative 'empty_square'
+require_relative 'invalid_move_error'
 
 class Piece
   attr_reader :color
+  attr_accessor :board
 
-  def initialize(color, position)
+  def initialize(color, position, board)
     @color    = color
     @king     = false
     @position = position
+    @board    = board
   end
 
   def king?
@@ -32,27 +35,91 @@ class Piece
     end
   end
 
-  def available_moves(board)
-    possibilities = self.displacements
+  def valid_moves(&blk)
+    moves = []
 
-    actualities = []
-
-    possibilities.each do |displacement|
-      coord = (displacement.to_vector + position.to_vector).to_a
+    displacements.each do |d|
+      coord = (d.to_vector + position.to_vector).to_a
 
       next unless board.on_board?(*coord)
 
-      if !board[*coord].piece?
-        actualities << coord
-      elsif displacement.to_vector.magnitude < 2
-        possibilities << (displacement.to_vector * 2).to_a
+      coord = blk.call(coord)
+
+      moves << coord if coord
+    end
+
+    moves
+  end
+
+  def slide_moves
+    valid_moves { |coord| coord unless board[*coord].piece? }
+  end
+
+  def jump_moves
+    valid_moves do |coord|
+      next false unless board[*coord].piece?
+
+      displacement = 2*(coord.to_vector - position.to_vector)
+      coord = (displacement + position.to_vector).to_a
+
+      next false unless board.on_board?(*coord)
+
+      coord unless board[*coord].piece?
+    end
+  end
+
+  def slide(to)
+    return move!(to) if slide_moves.include?(to)
+
+    false
+  end
+
+  def jump(to)
+    return false unless jump_moves.include?(to)
+
+    mid = ((to.to_vector + position.to_vector) / 2).to_a
+    board[ *mid ] = EmptySquare::sentinel
+
+    move!(to)
+  end
+
+  def valid_move_sequence?(sequence)
+    begin
+      dupped_board = board.dup
+      dupped_board[*self.position].perform_moves!(sequence)
+    rescue InvalidMoveError
+      false
+    else
+      true
+    end
+  end
+
+  def perform_moves(sequence)
+    if valid_move_sequence?(sequence)
+      perform_moves!(sequence)
+    else
+      raise InvalidMoveError
+    end
+  end
+
+  def perform_moves!(sequence)
+    if sequence.length == 1
+      if slide_moves.include?(sequence[0])
+        slide(sequence[0])
+        return
       end
     end
 
-    actualities
+    sequence.each do |move|
+      if jump_moves.include?(move)
+        jump(move)
+      else
+        raise InvalidMoveError
+      end
+    end
   end
 
-  def move!(coord, board)
+  def move!(coord)
     raise "Not on board!" unless board.on_board?(*coord)
     board[*coord] = self
     board[*self.position] = EmptySquare::sentinel
@@ -60,6 +127,8 @@ class Piece
     self.position = coord
 
     maybe_promote
+
+    true
   end
 
   def maybe_promote
@@ -76,7 +145,7 @@ class Piece
     color == :white ? sigil.cyan : sigil.red
   end
 
-  protected
+  #protected
 
   attr_accessor :position
 end

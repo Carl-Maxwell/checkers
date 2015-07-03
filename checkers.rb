@@ -11,9 +11,9 @@ class Checkers
   end
 
   def starting_squares
-    squares = (0..7).to_a.product((0..7).to_a).to_a
+    all_coords = (0..7).to_a.product((0..7).to_a).to_a
 
-    diagonals = squares.select { |(row, col)| (row + col).odd? }
+    diagonals = all_coords.select { |(row, col)| (row + col).odd? }
 
     black, white = diagonals[0...12], diagonals[-12..-1]
 
@@ -23,9 +23,10 @@ class Checkers
   def setup_board
     black, white = starting_squares
 
+
     [[:black, black], [:white, white]].each do |(color, squares)|
       squares.each do |(row, col)|
-        self.board[row, col] = Piece.new(color, [row, col])
+        self.board[row, col] = Piece.new(color, [row, col], board)
       end
     end
   end

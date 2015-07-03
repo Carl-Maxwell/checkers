@@ -22,8 +22,24 @@ class Board
 
   def on_board?(*coord)
     row, col = *coord
-    (0..grid.length).include?(row) &&
-    (0..grid[0].length).include?(col)
+    (0...grid.length).include?(row) &&
+    (0...grid[0].length).include?(col)
+  end
+
+  def dup
+    double = self.class.new
+
+    grid.each.with_index do |row, row_i|
+      row.each.with_index do |piece, col_i|
+        if piece.piece?
+          dupped_piece = piece.dup
+          double[row_i, col_i] = dupped_piece
+          dupped_piece.board = double
+        end
+      end
+    end
+
+    double
   end
 
   def to_s
